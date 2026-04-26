@@ -1,10 +1,10 @@
-'use client';
+"use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, Pencil, Plus, GripVertical, Sparkles } from "lucide-react";
 
 // Utility to generate soft random colors per card
-function getColor(index) {
+function getColor(index: number) {
   const colors = [
     "from-purple-500 to-indigo-500",
     "from-rose-500 to-orange-500",
@@ -15,12 +15,18 @@ function getColor(index) {
   return colors[index % colors.length];
 }
 
+type link = {
+  _id: string;
+  title: string;
+  url: string;
+};
+
 export default function Dashboard() {
-  const [links, setLinks] = useState([]);
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [links, setLinks] = useState<link[]>([]);
+  const [title, setTitle] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function fetchLinks() {
     try {
@@ -36,7 +42,7 @@ export default function Dashboard() {
     fetchLinks();
   }, []);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!title || !url) return;
 
@@ -62,7 +68,7 @@ export default function Dashboard() {
     setLoading(false);
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id: string) {
     try {
       await fetch("/api/links", {
         method: "DELETE",
@@ -76,7 +82,7 @@ export default function Dashboard() {
     }
   }
 
-  function handleEdit(link) {
+  function handleEdit(link: { title: string; url: string; _id: string }) {
     setTitle(link.title);
     setUrl(link.url);
     setEditingId(link._id);
@@ -141,7 +147,7 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
               className={`relative group overflow-hidden rounded-3xl bg-gradient-to-r ${getColor(
-                index
+                index,
               )} p-[1px] shadow-lg`}
             >
               <div className="flex items-center justify-between bg-black rounded-3xl px-5 py-5">

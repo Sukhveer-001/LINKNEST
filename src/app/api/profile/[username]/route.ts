@@ -23,7 +23,15 @@ export async function GET(req: NextRequest) {
         const links = await Link.find({
             userId: token.id
         });
-        const user = await User.findById(token.id);
+        const user = await User.findById(token.id).select("name username");;
+
+        if (!user) {
+            return NextResponse.json(
+                { message: "User not found" },
+                { status: 404 }
+            );
+        }
+        
         const { name, username } = user;
         return NextResponse.json({
 
