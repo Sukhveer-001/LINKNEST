@@ -28,7 +28,8 @@ export default function LoginPage() {
       if (response?.error) {
         alert(response.error);
       } else {
-        alert("Login successful!");
+        // alert("Login successful!");
+        router.refresh();
         router.push("/dashboard");
       }
     } catch (error) {

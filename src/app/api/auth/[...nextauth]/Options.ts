@@ -76,6 +76,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user._id?.toString();
                 token.username = user.username;
                 token.email = user.email;
+                token.isSetupComplete = !!user.username;
             }
 
             /*
@@ -123,20 +124,20 @@ export const authOptions: NextAuthOptions = {
 
             return token;
         },
-       async session({ session, token }) {
+        async session({ session, token }) {
 
-    if (token) {
-        session.user = {
-            ...session.user,
-            id: token.id as string,
-            username: token.username as string,
-            email: token.email as string,
-            isSetupComplete: token.isSetupComplete as boolean   // ⭐ THIS LINE
-        };
-    }
+            if (token) {
+                session.user = {
+                    ...session.user,
+                    id: token.id as string,
+                    username: token.username as string,
+                    email: token.email as string,
+                    isSetupComplete: token.isSetupComplete as boolean   // ⭐ THIS LINE
+                };
+            }
 
-    return session;
-},
+            return session;
+        },
     },
     secret: process.env.NEXTAUTH_SECRET
 }

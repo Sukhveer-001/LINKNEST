@@ -23,11 +23,11 @@ export async function middleware(req: NextRequest) {
     token?.isSetupComplete === true;
 
   // 🔍 Debug (safe for production if needed)
-  console.log("MIDDLEWARE:", {
-    path: pathname,
-    username: token?.username,
-    isSetupComplete,
-  });
+  // console.log("MIDDLEWARE:", {
+  //   path: pathname,
+  //   username: token?.username,
+  //   isSetupComplete,
+  // });
 
   // -------------------------
   // 1. NOT LOGGED IN → LOGIN

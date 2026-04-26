@@ -45,7 +45,8 @@ export default function SignUpPage() {
   alert(errorMessage);
   return;
 }
-      alert("Registration successful! You can now sign in.");
+      // alert("Registration successful! You can now sign in.");
+      router.refresh();
       router.push('/login');
     } catch (error) {
       console.error("Registration error:", error);
