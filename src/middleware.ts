@@ -2,64 +2,70 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
-  // console.log("MIDDLEWARE RUNNING");
-
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // console.log("TOKEN:", token);
-
-  const url = req.nextUrl;
-  const pathname = url.pathname;
+  const pathname = req.nextUrl.pathname;
 
   const isAuthRoute =
-    pathname === "/login" ||
-    pathname === "/register";
-
-  const isProtectedRoute =
-    pathname.startsWith("/dashboard");
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
 
   const isSetupRoute =
-    pathname === "/setup";
+    pathname.startsWith("/setup");
+
+  const isDashboardRoute =
+    pathname.startsWith("/dashboard");
+
+  const isSetupComplete =
+    token?.isSetupComplete === true;
+
+  // 🔍 Debug (safe for production if needed)
+  console.log("MIDDLEWARE:", {
+    path: pathname,
+    username: token?.username,
+    isSetupComplete,
+  });
 
   // -------------------------
-  // 1 — If NOT logged in
+  // 1. NOT LOGGED IN → LOGIN
   // -------------------------
-
   if (!token) {
-    if (isProtectedRoute || isSetupRoute) {
+    if (isDashboardRoute || isSetupRoute) {
       return NextResponse.redirect(
         new URL("/login", req.url)
       );
     }
-
     return NextResponse.next();
   }
 
   // -------------------------
-  // 2 — If logged in
+  // 2. LOGGED IN + SETUP NOT COMPLETE → FORCE SETUP
+  // -------------------------
+  if (!isSetupComplete) {
+    if (!isSetupRoute) {
+      return NextResponse.redirect(
+        new URL("/setup", req.url)
+      );
+    }
+    return NextResponse.next();
+  }
+
+  // -------------------------
+  // 3. LOGGED IN + SETUP COMPLETE
   // -------------------------
 
-  const hasUsername = !!token.username;
-
-  // Redirect logged-in users away from login/register
-  if (isAuthRoute) {
+  // Block setup page
+  if (isSetupRoute) {
     return NextResponse.redirect(
       new URL("/dashboard", req.url)
     );
   }
 
-  // Force username setup if missing
-  if (!hasUsername && !isSetupRoute) {
-    return NextResponse.redirect(
-      new URL("/setup", req.url)
-    );
-  }
-
-  // Block setup if username already exists
-  if (hasUsername && isSetupRoute) {
+  // Block login/register
+  if (isAuthRoute) {
     return NextResponse.redirect(
       new URL("/dashboard", req.url)
     );

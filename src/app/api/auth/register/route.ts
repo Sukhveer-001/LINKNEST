@@ -4,7 +4,7 @@ import { dbConnect } from "@/utils/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-    console.log("register route hit!");
+    // console.log("register route hit!");
 
     try {
         //database connection
@@ -14,8 +14,8 @@ export const POST = async (req: NextRequest) => {
         //information destructuring
         const body = await req.json();
 
-        let { name, username, email, password } = body;
-        console.log(name, email, username, password);
+        let { name, email, password } = body;
+        console.log(name, email, password);
 
         //validation
         if (!name || !email || !password) {
@@ -53,7 +53,8 @@ export const POST = async (req: NextRequest) => {
 
 
         const existingUser = await User.findOne({
-            $or: [{ email }, { username }],
+            // $or: [{ email }, { username }],
+            email
         });
 
         if (existingUser) {

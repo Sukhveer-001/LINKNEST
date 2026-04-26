@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 
 export default function UsernameSetupPage() {
   const router = useRouter();
-  const { update } = useSession();
+  const { data: session, status, update } = useSession();
 
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,36 +44,49 @@ export default function UsernameSetupPage() {
         },
         body: JSON.stringify({ username }),
       });
-
+      console.log("STEP 2 — fetch done");
       const data = await response.json();
-
+      console.log("STEP 3 — response parsed", data);
       if (!response.ok) {
+        console.log("STEP 4 — response not OK");
         setError(data?.message || "Failed to set username");
         return;
       }
+      console.log("STEP 5 — before update");
 
-      // update session safely
+      // Update session
       await update({
         username,
+        isSetupComplete: true,
       });
+      router.refresh();
+      console.log("STEP 6 — after update");
+      console.log("NAVIGATING...");
+      router.replace("/dashboard");
+      // // IMPORTANT: wait for session sync
+      // await new Promise((resolve) => setTimeout(resolve, 300));
 
-      router.push("/dashboard");
+      // router.replace("/dashboard");
     } catch (err) {
       console.error("Username setup error:", err);
-
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (status === "loading") return;
 
+    if (session?.user?.isSetupComplete) {
+      console.log("Redirecting to dashboard...");
+      router.replace("/dashboard");
+    }
+  }, [session, status, router]);
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Left */}
       <div className="hidden md:flex w-1/2 bg-black text-white flex-col justify-between p-12">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          YourApp
-        </h1>
+        <h1 className="text-3xl font-semibold tracking-tight">YourApp</h1>
 
         <div className="max-w-md">
           <h2 className="text-4xl font-bold leading-tight">
@@ -106,10 +119,7 @@ export default function UsernameSetupPage() {
             Pick something simple and memorable
           </p>
 
-          <form
-            className="space-y-5"
-            onSubmit={handleSubmit}
-          >
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Username
@@ -133,11 +143,7 @@ export default function UsernameSetupPage() {
                 )}
               </div>
 
-              {error && (
-                <p className="text-xs text-red-500 mt-2">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
 
               <p className="text-xs text-gray-500 mt-2">
                 This will be used in your public profile URL.

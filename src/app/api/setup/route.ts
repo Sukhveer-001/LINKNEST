@@ -2,8 +2,9 @@ import User from "@/models/user";
 import { dbConnect } from "@/utils/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-export async function POST(req: NextRequest) {
+import { IUser } from "@/types/auth";
 
+export async function POST(req: NextRequest) {
     try {
         const token = await getToken({
             req,
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
 
         // 6 — Save username (triggers hooks if needed)
         user.username = username;
-
+        user.isSetupComplete = true;
         await user.save();
 
         return NextResponse.json(

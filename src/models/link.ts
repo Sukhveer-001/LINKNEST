@@ -1,13 +1,5 @@
 import mongoose, { Schema, Model, models, Types } from "mongoose";
-
-export interface ILink extends Document {
-    userId: Types.ObjectId;
-    title: string;
-    url: string;
-    order: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
+import { ILink } from "@/types/auth";
 
 const linkSchema = new Schema<ILink>(
     {

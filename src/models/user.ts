@@ -1,20 +1,6 @@
 import mongoose, { Schema, Document, Model, HydratedDocument } from "mongoose";
 import bcrypt from "bcryptjs";
-
-export interface IUser extends Document {
-    name: string;
-    username?: string | null;
-    email: string;
-    password: string;
-
-    bio?: string;
-
-    createdAt: Date;
-    updatedAt: Date;
-
-    isSetupComplete(): boolean;
-    comparePassword(candidatePassword: string): Promise<boolean>;
-}
+import { IUser } from "@/types/auth";
 
 const UserSchema: Schema<IUser> = new Schema(
     {

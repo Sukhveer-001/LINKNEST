@@ -6,6 +6,7 @@ declare module "next-auth" {
       id?: string;
       username?: string;
       email?: string;
+      isSetupComplete?: boolean;
     } & DefaultSession["user"];
   }
 
@@ -14,6 +15,7 @@ declare module "next-auth" {
     username: string;
     email: string;
     password: string;
+    
   }
 }
 
@@ -36,4 +38,28 @@ interface Profile {
   name: string;
   username: string;
   links: Link[];
+}
+
+export interface IUser extends Document {
+    name: string;
+    username?: string | null;
+    email: string;
+    password: string;
+
+    bio?: string;
+
+    createdAt: Date;
+    updatedAt: Date;
+
+    isSetupComplete: boolean;
+    comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+export interface ILink extends Document {
+    userId: Types.ObjectId;
+    title: string;
+    url: string;
+    order: number;
+    createdAt: Date;
+    updatedAt: Date;
 }

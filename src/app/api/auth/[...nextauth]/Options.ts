@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptions = {
 
                     const dbUser = await User
                         .findById(token.id)
-                        .select("username")
+                        .select("username isSetupComplete")
                         .lean();
 
                     if (!dbUser) {
@@ -104,11 +104,17 @@ export const authOptions: NextAuthOptions = {
                         }
                         return token;
                     }
+                    token.username = dbUser.username ?? undefined;
+                    token.isSetupComplete = dbUser.isSetupComplete ?? false;
+                    // console.log("JWT updated token:", token);
+                    // console.log("DB user:", dbUser);
 
+                    // console.log("JWT trigger:", trigger);
+                    // console.log("JWT token before:", token);
                     /*
                       Sync token with database
                     */
-                    token.username = dbUser.username ?? undefined;
+                    // token.username = dbUser.username ?? undefined;
 
                 } catch (error) {
                     console.error("JWT update error:", error);
@@ -117,23 +123,20 @@ export const authOptions: NextAuthOptions = {
 
             return token;
         },
-        async session({ session, token }) {
-            // console.log("SESSION CALLBACK");
-            // console.log("session before:", session);
-            // console.log("token:", token);
+       async session({ session, token }) {
 
-            if (token) {
-                session.user = {
-                    ...session.user,
-                    id: token.id as string,
-                    username: token.username as string,
-                    email: token.email as string
-                };
+    if (token) {
+        session.user = {
+            ...session.user,
+            id: token.id as string,
+            username: token.username as string,
+            email: token.email as string,
+            isSetupComplete: token.isSetupComplete as boolean   // ⭐ THIS LINE
+        };
+    }
 
-            }
-            // console.log("session after:", session);
-            return session
-        }
+    return session;
+},
     },
     secret: process.env.NEXTAUTH_SECRET
 }
